@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.IllegalFormatException;
 
@@ -19,8 +20,8 @@ import java.util.IllegalFormatException;
 public class ActivityOne extends ActionBarActivity {
     private Intent intent;
     public static MyHandler sHandler;
-    private boolean flag = false;
-
+    private boolean flag;
+    private Button mServiceButton;
     class MyHandler extends Handler {
 
         public MyHandler(Looper looper) {
@@ -29,18 +30,20 @@ public class ActivityOne extends ActionBarActivity {
 
         @Override
         public void handleMessage(Message msg) {
+            if(Utils.isNotNullOrEmpty(msg))
             switch (msg.what) {
                 case Constants.MESSAGE_WHAT_START_SERVICE:
-                    ((Button) findViewById(R.id.buttonStartService)).setText(getResources().getString(R.string.stop_service_button));
+                    if(Utils.isNotNullOrEmpty(mServiceButton))
+                        mServiceButton.setText(getResources().getString(R.string.stop_service_button));
                     flag = true;
-
                     break;
                 case Constants.MESSAGE_WHAT_STOP_SERVICE:
-                    ((Button) findViewById(R.id.buttonStartService)).setText(getResources().getString(R.string.start_service_button));
+                    if(Utils.isNotNullOrEmpty(mServiceButton))
+                        mServiceButton.setText(getResources().getString(R.string.start_service_button));
                     flag = false;
                     break;
                 default:
-                    throw new IllegalStateException();
+                    throw new RuntimeException("MESSAGE.what value not supported");
             }
             super.handleMessage(msg);
         }
@@ -50,10 +53,11 @@ public class ActivityOne extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_activity_one);
-        sHandler = new MyHandler(getMainLooper());
         if (savedInstanceState != null) {
             flag = savedInstanceState.getBoolean(Constants.KEY_FLAG, false);
         }
+        mServiceButton=(Button) findViewById(R.id.buttonStartService);
+        sHandler = new MyHandler(getMainLooper());
     }
 
 
@@ -68,9 +72,9 @@ public class ActivityOne extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
         if (!flag)
-            ((Button) findViewById(R.id.buttonStartService)).setText(getResources().getString(R.string.start_service_button));
+            mServiceButton.setText(getResources().getString(R.string.start_service_button));
         else
-            ((Button) findViewById(R.id.buttonStartService)).setText(getResources().getString(R.string.stop_service_button));
+            mServiceButton.setText(getResources().getString(R.string.stop_service_button));
     }
 
     public void onButtonClick(View view) {
@@ -89,7 +93,8 @@ public class ActivityOne extends ActionBarActivity {
                     intent.setAction(Constants.INTENT_ACTION_START_SERVICE);
                 else
                     intent.setAction(Constants.INTENT_ACTION_STOP_SERVICE);
-                startService(intent);
+                if(!Utils.isNotNullOrEmpty(startService(intent)))
+                    Toast.makeText(this,"service does not exist",Toast.LENGTH_SHORT).show();
                 break;
         }
     }

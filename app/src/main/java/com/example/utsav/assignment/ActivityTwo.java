@@ -2,7 +2,6 @@ package com.example.utsav.assignment;
 
 import android.content.ContentUris;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -13,53 +12,49 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.example.utsav.assignment.Beans.ListItemHolder;
-import com.example.utsav.assignment.view.ImgTextAdapter;
+import com.example.utsav.assignment.view.ListAdapter;
 
 import java.util.ArrayList;
 
 
 public class ActivityTwo extends ActionBarActivity {
-    private String[] projection = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME,};
-    private String[] mEmailProjection = {ContactsContract.CommonDataKinds.Email.ADDRESS};
-    private ArrayList<ListItemHolder> mContactsListItemHolders = new ArrayList<>();
-    private ImgTextAdapter mImgTextAdapter;
+    private final String[] projection = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME,};
+    private final String[] mEmailProjection = {ContactsContract.CommonDataKinds.Email.ADDRESS};
+    private ArrayList<ListItemHolder> mContactsListItemHolders;
+    private ListAdapter mListAdapter;
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_activity_two);
+        mContactsListItemHolders = new ArrayList<>();
+        mListView = (ListView) findViewById(R.id.contactsList);
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, null);
-        if (cursor.getCount() > 0) {
+        if (Utils.isNotNullOrEmpty(cursor) && cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
                 ListItemHolder holder = new ListItemHolder();
-                holder.text1 = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                //email
+                holder.labelMainString = cursor.getString(1);
                 Cursor emailCur = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI
                         , mEmailProjection, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
                         new String[]{cursor.getString(0)}, null);
-
-                if (emailCur.getCount() > 0) {
+                if (Utils.isNotNullOrEmpty(emailCur) && emailCur.getCount() > 0) {
                     emailCur.moveToNext();
-                    holder.text2 = emailCur.getString(0);
+                    holder.labelSubString = emailCur.getString(0);
                 }
-                //img//<<<<<<<<<<<<<<<<<
-
-
                 Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, cursor.getInt(0));
                 Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
                 Cursor imgcursor = getContentResolver().query(photoUri, new String[]{ContactsContract.Contacts.Photo.PHOTO}
                         , null, null, null);
-                if (imgcursor.getCount() > 0) {
+                if (Utils.isNotNullOrEmpty(imgcursor)&&imgcursor.getCount() > 0) {
                     imgcursor.moveToNext();
                     holder.bitmap = BitmapFactory.decodeByteArray(imgcursor.getBlob(0), 0, imgcursor.getBlob(0).length);
                 }
                 mContactsListItemHolders.add(holder);
-
             }
         }
-        mImgTextAdapter = new ImgTextAdapter(this, mContactsListItemHolders);
-        ListView listView = (ListView) findViewById(R.id.contactsList);
-        listView.setAdapter(mImgTextAdapter);
+        mListAdapter = new ListAdapter(this, mContactsListItemHolders);
+        mListView.setAdapter(mListAdapter);
     }
 
 

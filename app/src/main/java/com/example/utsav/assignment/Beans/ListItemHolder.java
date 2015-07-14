@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
  */
 public class ListItemHolder {
     public Bitmap bitmap;
-    public String text1;
-    public String text2;
+    public String labelMainString;
+    public String labelSubString;
 
 }

@@ -13,18 +13,19 @@ import android.widget.TextView;
 import com.example.utsav.assignment.Beans.ListItemHolder;
 import com.example.utsav.assignment.Logger;
 import com.example.utsav.assignment.R;
+import com.example.utsav.assignment.Utils;
 
 import java.util.ArrayList;
 
 /**
  * Created by utsav on 13/7/15.
  */
-public class ImgTextAdapter extends BaseAdapter {
+public class ListAdapter extends BaseAdapter {
     private ArrayList<ListItemHolder> mListItemsArrayList;
     private Context mContext;
     private ViewHolder mViewHolder;
 
-    public ImgTextAdapter(Context context, ArrayList<ListItemHolder> listItemArrayList) {
+    public ListAdapter(Context context, ArrayList<ListItemHolder> listItemArrayList) {
         mListItemsArrayList = listItemArrayList;
         mContext = context;
     }
@@ -52,24 +53,27 @@ public class ImgTextAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
         ViewHolder viewHolder;
-        if (view == null) {
+        if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.list_item_layout, null);
+            convertView = inflater.inflate(R.layout.list_item_layout, null);
             viewHolder = new ViewHolder();
-            viewHolder.imageView = (ImageView) view.findViewById(R.id.image);
-            viewHolder.textView = (TextView) view.findViewById(R.id.text1);
-            viewHolder.textView2 = (TextView) view.findViewById(R.id.text2);
-            view.setTag(viewHolder);
+            if (Utils.isNotNullOrEmpty(convertView)) {
+                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
+                viewHolder.textView = (TextView) convertView.findViewById(R.id.text1);
+                viewHolder.textView2 = (TextView) convertView.findViewById(R.id.text2);
+                convertView.setTag(viewHolder);
+            }
         } else
-            viewHolder = (ViewHolder) view.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
 
         ListItemHolder listItemHolder = mListItemsArrayList.get(position);
-        viewHolder.imageView.setImageBitmap(listItemHolder.bitmap==null? BitmapFactory.decodeResource(mContext.getResources(),R.drawable.contact_def)
-                                            :listItemHolder.bitmap);
-        viewHolder.textView.setText(listItemHolder.text1==null?"":listItemHolder.text1);
-        viewHolder.textView2.setText(listItemHolder.text2==null?"":listItemHolder.text2);
-        return view;
+        if (Utils.isNotNullOrEmpty(viewHolder)) {
+            viewHolder.imageView.setImageBitmap(listItemHolder.bitmap == null ? BitmapFactory.decodeResource(mContext.getResources(), R.drawable.contact_def)
+                    : listItemHolder.bitmap);
+            viewHolder.textView.setText(listItemHolder.labelMainString == null ? "" : listItemHolder.labelMainString);
+            viewHolder.textView2.setText(listItemHolder.labelSubString == null ? "" : listItemHolder.labelSubString);
+        }
+        return convertView;
     }
 }

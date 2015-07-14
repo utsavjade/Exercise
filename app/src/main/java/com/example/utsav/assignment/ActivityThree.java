@@ -2,8 +2,6 @@ package com.example.utsav.assignment;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -12,31 +10,37 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.example.utsav.assignment.Beans.ListItemHolder;
-import com.example.utsav.assignment.view.ImgTextAdapter;
+import com.example.utsav.assignment.view.ListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class ActivityThree extends ActionBarActivity {
-    private ArrayList<ListItemHolder> mListItemHolders=new ArrayList<>();
+    private ArrayList<ListItemHolder> mListItemHoldersArrayList;
+    private List<ApplicationInfo> mApplicationInfoList;
+    private PackageManager mPackageManager;
+    private ListAdapter mListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_activity_three);
-        PackageManager packageManager=getPackageManager();
-        List<ApplicationInfo> apps=packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        for(ApplicationInfo info:apps){
-            ListItemHolder holder=new ListItemHolder();
-            holder.bitmap= ((BitmapDrawable)info.loadIcon(packageManager)).getBitmap();
-            holder.text1 = (String) info.loadLabel(packageManager);
-            holder.text2= (String)info.packageName;
-            mListItemHolders.add(holder);
-        }
-        ImgTextAdapter adapter=new ImgTextAdapter(this,mListItemHolders);
-        ((ListView)findViewById(R.id.listViewApps)).setAdapter(adapter);
-
-                }
+        mListItemHoldersArrayList = new ArrayList<>();
+        mPackageManager = getPackageManager();
+        if (Utils.isNotNullOrEmpty(mPackageManager))
+            mApplicationInfoList = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+        mListAdapter = new ListAdapter(this, mListItemHoldersArrayList);
+        if (Utils.isNotNullOrEmpty(mApplicationInfoList))
+            for (ApplicationInfo info : mApplicationInfoList) {
+                ListItemHolder holder = new ListItemHolder();
+                holder.bitmap = ((BitmapDrawable) info.loadIcon(mPackageManager)).getBitmap();
+                holder.labelMainString = (String) info.loadLabel(mPackageManager);
+                holder.labelSubString = (String) info.packageName;
+                mListItemHoldersArrayList.add(holder);
+            }
+        ((ListView) findViewById(R.id.listViewApps)).setAdapter(mListAdapter);
+    }
 
 
     @Override

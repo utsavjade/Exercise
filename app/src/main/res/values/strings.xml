@@ -7,4 +7,6 @@
     <string name="title_activity_activity_three">ActivityThree</string>
     <string name="start_service_button">START SERVICE</string>
     <string name="stop_service_button">STOP SERVICE </string>
+    <string name="goto_contacts_button">goto Contacts</string>
+    <string name="goto_applist_button">goto Apps</string>
 </resources>

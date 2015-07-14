@@ -1,22 +1,13 @@
 package com.example.utsav.assignment;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ComponentInfo;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
-import android.view.View;
 import android.widget.Button;
-
-import java.util.logging.*;
-
-import javax.net.ssl.HandshakeCompletedListener;
 
 public class LoggerService extends Service {
     ActivityManager mActivityManager;
@@ -85,6 +76,8 @@ public class LoggerService extends Service {
     public void onDestroy() {
         //if(isRunning)
         sendMessageToActivityOne(Constants.MESSAGE_WHAT_STOP_SERVICE);
+        if(isRunning)
+            startService(new Intent(Constants.INTENT_ACTION_START_SERVICE));
         super.onDestroy();
     }
 }
